@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Viaje LM EUROPAAAAAA 2025</title>
+  <title>Viaje LM EUROPA 2025</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -26,6 +26,7 @@
       color: white;
       border: none;
       cursor: pointer;
+      margin-top: 0.5em;
     }
     button:hover {
       background-color: #0056b3;
@@ -35,6 +36,7 @@
       background: #fff;
       padding: 1em;
       border: 1px solid #ccc;
+      white-space: pre-wrap;
     }
     .info {
       font-size: 0.95em;
@@ -43,6 +45,14 @@
       padding: 1em;
       margin-top: 1em;
       border-left: 4px solid #007bff;
+    }
+    .success {
+      color: green;
+      font-weight: bold;
+    }
+    .error {
+      color: red;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -66,11 +76,18 @@
   <button onclick="enviarPregunta()">Enviar pregunta</button>
 
   <div id="respuesta"></div>
+  <button onclick="copiarRespuesta()">📋 Copiar respuesta</button>
 
   <script>
     async function enviarPregunta() {
-      const pregunta = document.getElementById('pregunta').value;
+      const pregunta = document.getElementById('pregunta').value.trim();
       const respuestaDiv = document.getElementById('respuesta');
+
+      if (!pregunta) {
+        respuestaDiv.innerHTML = "<span class='error'>Por favor, escribí una pregunta antes de enviar.</span>";
+        return;
+      }
+
       respuestaDiv.innerText = "Consultando...";
 
       try {
@@ -80,12 +97,23 @@
           body: JSON.stringify({ pregunta })
         });
         const data = await res.json();
-        respuestaDiv.innerText = data.respuesta || "No se recibió respuesta del agente.";
+        respuestaDiv.innerHTML = data.respuesta
+          ? `<span class="success">${data.respuesta}</span>`
+          : "<span class='error'>No se recibió respuesta del agente.</span>";
       } catch (error) {
         console.error(error);
-        respuestaDiv.innerText = "Error al conectar con el servidor.";
+        respuestaDiv.innerHTML = "<span class='error'>Error al conectar con el servidor.</span>";
       }
+    }
+
+    function copiarRespuesta() {
+      const texto = document.getElementById('respuesta').innerText;
+      if (!texto) return;
+      navigator.clipboard.writeText(texto).then(() => {
+        alert("Respuesta copiada al portapapeles");
+      });
     }
   </script>
 </body>
 </html>
+
